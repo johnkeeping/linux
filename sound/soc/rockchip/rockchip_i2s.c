@@ -333,10 +333,11 @@ static int rockchip_i2s_hw_params(struct snd_pcm_substream *substream,
 		regmap_write(i2s->grf, i2s->pins->reg_offset, val);
 	}
 
+        /* DMA w/ 24 bytes to go to support DDRFreq */
 	regmap_update_bits(i2s->regmap, I2S_DMACR, I2S_DMACR_TDL_MASK,
-			   I2S_DMACR_TDL(16));
+			   I2S_DMACR_TDL(24));
 	regmap_update_bits(i2s->regmap, I2S_DMACR, I2S_DMACR_RDL_MASK,
-			   I2S_DMACR_RDL(16));
+			   I2S_DMACR_RDL(8));
 
 	val = I2S_CKR_TRCM_TXRX;
 	if (dai->driver->symmetric_rates && rtd->dai_link->symmetric_rates)
