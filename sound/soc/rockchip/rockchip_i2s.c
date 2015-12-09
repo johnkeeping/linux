@@ -482,6 +482,7 @@ static bool rockchip_i2s_volatile_reg(struct device *dev, unsigned int reg)
 	switch (reg) {
 	case I2S_INTSR:
 	case I2S_CLR:
+	case I2S_FIFOLR:
 		return true;
 	default:
 		return false;
