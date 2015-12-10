@@ -95,6 +95,18 @@
 		reset-gpios = <&gpio4 28 GPIO_ACTIVE_LOW>;
 	};
 
+	sound_es8328: sound-es8328 {
+		compatible = "rockchip,rockchip-audio-es8328";
+		pinctrl-names = "default";
+		pinctrl-0 = <&sound_hp_det>, <&sound_phone_ctl>;
+
+		rockchip,model = "ROCKCHIP-I2S";
+		rockchip,i2s-controller = <&i2s>;
+		rockchip,audio-codec = <&es8388>;
+		hp-det-gpio = <&gpio7 7 GPIO_ACTIVE_HIGH>;
+		phone-ctl-gpio = <&gpio8 0 GPIO_ACTIVE_HIGH>;
+	};
+
 	vcc_usb_host: vcc-host-regulator {
 		compatible = "regulator-fixed";
 		enable-active-high;
@@ -173,6 +185,22 @@
 	};
 };
 
+&i2c2 {
+	status = "okay";
+
+	es8388: es8388@20 {
+		#sound-dai-cells = <0>;
+		compatible = "everest,es8328";
+		reg = <0x10>;
+		DVDD-supply = <&vcca_codec>;
+		PVDD-supply = <&vcca_codec>;
+		AVDD-supply = <&vcca_codec>;
+		HPVDD-supply = <&vcca_codec>;
+		clocks = <&cru SCLK_I2S0_OUT>;
+		clock-frequency = <11289600>;
+	};
+};
+
 &i2c5 {
 	status = "okay";
 };
@@ -207,9 +235,23 @@
 			rockchip,pins = <4 28 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
+
+	sound {
+		sound_hp_det: sound-hp-det {
+			rockchip,pins = <7 7 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+
+		sound_phone_ctl: sound-phone-ctl {
+			rockchip,pins = <8 0 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
 };
 
 &spdif {
+	status = "okay";
+};
+
+&i2s {
 	status = "okay";
 };
 

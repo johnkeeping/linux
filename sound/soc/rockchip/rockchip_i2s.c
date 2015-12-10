@@ -595,10 +595,12 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
 	i2s->playback_dma_data.addr = res->start + I2S_TXDR;
 	i2s->playback_dma_data.addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
 	i2s->playback_dma_data.maxburst = 1;
+	i2s->playback_dma_data.fifo_size = 32;
 
 	i2s->capture_dma_data.addr = res->start + I2S_RXDR;
 	i2s->capture_dma_data.addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
 	i2s->capture_dma_data.maxburst = 1;
+	i2s->capture_dma_data.fifo_size = 32;
 
 	dev_set_drvdata(&pdev->dev, i2s);
 
