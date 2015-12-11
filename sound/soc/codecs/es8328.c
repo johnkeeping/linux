@@ -88,6 +88,8 @@ struct es8328_priv {
 	struct clk *clk;
 	int playback_fs;
 	bool deemph;
+	bool samefs;
+	bool dacmclk;
 	int mclkdiv2;
 	const struct snd_pcm_hw_constraint_list *sysclk_constraints;
 	const int *mclk_ratios;
@@ -586,12 +588,24 @@ static int es8328_set_dai_fmt(struct snd_soc_dai *codec_dai,
 		unsigned int fmt)
 {
 	struct snd_soc_codec *codec = codec_dai->codec;
+	u8 clk_mode;
+	u8 asd_tri;
 	u8 dac_mode = 0;
 	u8 adc_mode = 0;
 
 	/* set master/slave audio interface */
-	if ((fmt & SND_SOC_DAIFMT_MASTER_MASK) != SND_SOC_DAIFMT_CBM_CFM)
+	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
+	case SND_SOC_DAIFMT_CBM_CFM:
+		clk_mode = ES8328_MASTERMODE_MSC;
+		asd_tri = 0;
+		break;
+	case SND_SOC_DAIFMT_CBS_CFS:
+		clk_mode = 0;
+		asd_tri = 0;
+		break;
+	default:
 		return -EINVAL;
+	}
 
 	/* interface format */
 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
@@ -620,10 +634,10 @@ static int es8328_set_dai_fmt(struct snd_soc_dai *codec_dai,
 	snd_soc_update_bits(codec, ES8328_ADCCONTROL4,
 			ES8328_ADCCONTROL4_ADCFORMAT_MASK, adc_mode);
 
-	/* Master serial port mode, with BCLK generated automatically */
+	snd_soc_update_bits(codec, ES8328_ADCCONTROL3,
+			ES8328_ADCCONTROL3_TRI, asd_tri);
 	snd_soc_update_bits(codec, ES8328_MASTERMODE,
-			ES8328_MASTERMODE_MSC, ES8328_MASTERMODE_MSC);
-
+			ES8328_MASTERMODE_MSC, clk_mode);
 	return 0;
 }
 
@@ -663,9 +677,19 @@ static int es8328_set_bias_level(struct snd_soc_codec *codec,
 		/* VREF, VMID=2*500k, digital stopped */
 		snd_soc_update_bits(codec, ES8328_CONTROL1,
 				ES8328_CONTROL1_VMIDSEL_MASK |
-				ES8328_CONTROL1_ENREF,
+				ES8328_CONTROL1_ENREF |
+#if 0
+				ES8328_CONTROL1_SAMEFS |
+				ES8328_CONTROL1_DACMCLK_DAC
+#endif
+				0,
 				ES8328_CONTROL1_VMIDSEL_500k |
-				ES8328_CONTROL1_ENREF);
+				ES8328_CONTROL1_ENREF |
+#if 0
+				ES8328_CONTROL1_SAMEFS |
+				ES8328_CONTROL1_DACMCLK_DAC
+#endif
+				0);
 		break;
 
 	case SND_SOC_BIAS_OFF:

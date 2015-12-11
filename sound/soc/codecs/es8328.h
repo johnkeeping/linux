@@ -83,7 +83,9 @@ int es8328_probe(struct device *dev, struct regmap *regmap);
 
 #define ES8328_ADCCONTROL1	0x09
 #define ES8328_ADCCONTROL2	0x0a
+
 #define ES8328_ADCCONTROL3	0x0b
+#define ES8328_ADCCONTROL3_TRI (1 << 2)
 
 #define ES8328_ADCCONTROL4	0x0c
 #define ES8328_ADCCONTROL4_ADCFORMAT_MASK (3 << 0)
