@@ -190,6 +190,13 @@ config ICS932S401
 	  This driver can also be built as a module. If so, the module
 	  will be called ics932s401.
 
+config OF_MUX
+	tristate "DeviceTree virtual multiplexer"
+	select OF_OVERLAY
+	help
+	  Enable support for a virtual mux device in the devicetree that
+	  can be used to select between multiple overlays.
+
 config ATMEL_SSC
 	tristate "Device driver for Atmel SSC peripheral"
 	depends on HAS_IOMEM && (AVR32 || ARCH_AT91 || COMPILE_TEST)
