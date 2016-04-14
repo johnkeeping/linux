@@ -572,8 +572,13 @@ static int dw_mipi_dsi_gen_pkt_hdr_write(struct dw_mipi_dsi *dsi, u32 hdr_val)
 static int dw_mipi_dsi_dcs_short_write(struct dw_mipi_dsi *dsi,
 				       const struct mipi_dsi_msg *msg)
 {
-	const u16 *tx_buf = msg->tx_buf;
-	u32 val = GEN_HDATA(*tx_buf) | GEN_HTYPE(msg->type);
+	const u8 *tx_buf = msg->tx_buf;
+	u32 val = GEN_HTYPE(msg->type);
+
+	if (msg->tx_len > 0)
+		val |= GEN_HDATA(tx_buf[0]);
+	if (msg->tx_len > 1)
+		val |= GEN_HDATA(tx_buf[1] << 8);
 
 	if (msg->tx_len > 2) {
 		dev_err(dsi->dev, "too long tx buf length %zu for short write\n",
