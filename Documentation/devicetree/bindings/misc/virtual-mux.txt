@@ -1,0 +1,57 @@
+Virtual-Mux:
+
+Virtual-Mux provided a mechanism for switching between device tree overlays
+without permitting arbitrary configurations to be loaded.  All supported
+overlays are specified as subnodes of the mux device.
+
+Required properties:
+
+- compatible: "virtual-mux"
+
+Optional properties:
+
+- default-state: name of the state to select at startup.  If this is not
+  specified then the first state will be selected.
+- switch-delay-ms: delay to insert after disabling the old state before
+  the new one is activated.  If this is not specified then no delay will
+  be used.
+- post-switch-delay-ms: delay to wait after activating a state before it
+  may be disabled again.  If this is not specified then no delay will be
+  used.
+
+State subnodes:
+
+Each subnode must have a name prefixed by "state-", the remainder of the
+node's name is the name of the state.  The subnodes of a state node are
+overlay fragments as described in overlay-notes.txt.
+
+Example:
+
+	xyzmux: mux@0 {
+		compatible = "virtual-mux";
+		default-state = "internal";
+
+		state-internal {
+			fragment@0 {
+				target = <&sdmmc>;
+				__overlay__ {
+					/delete-property/ wp-gpios;
+					disable-wp;
+					pinctrl-names = "default";
+					pinctrl-0 = <&sdmmc_select_internal>;
+					status = "okay";
+				};
+			};
+		};
+
+		state-external {
+			fragment@0 {
+				target = <&sdmmc>;
+				__overlay__ {
+					pinctrl-names = "default";
+					pinctrl-0 = <&sdmmc_select_external>;
+					status = "okay";
+				};
+			};
+		};
+	};
