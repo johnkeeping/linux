@@ -328,7 +328,6 @@ static struct platform_driver bdw_rt5677_audio = {
 	.remove = bdw_rt5677_remove,
 	.driver = {
 		.name = "bdw-rt5677",
-		.owner = THIS_MODULE,
 	},
 };
 
