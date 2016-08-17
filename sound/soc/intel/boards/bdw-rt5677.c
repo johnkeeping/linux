@@ -314,21 +314,13 @@ static int bdw_rt5677_probe(struct platform_device *pdev)
 
 	snd_soc_card_set_drvdata(&bdw_rt5677_card, bdw_rt5677);
 
-	return snd_soc_register_card(&bdw_rt5677_card);
-}
-
-static int bdw_rt5677_remove(struct platform_device *pdev)
-{
-	snd_soc_unregister_card(&bdw_rt5677_card);
-	return 0;
+	return devm_snd_soc_register_card(&pdev->dev, &bdw_rt5677_card);
 }
 
 static struct platform_driver bdw_rt5677_audio = {
 	.probe = bdw_rt5677_probe,
-	.remove = bdw_rt5677_remove,
 	.driver = {
 		.name = "bdw-rt5677",
-		.owner = THIS_MODULE,
 	},
 };
 
