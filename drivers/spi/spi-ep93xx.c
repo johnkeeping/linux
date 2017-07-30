@@ -587,6 +587,7 @@ static void ep93xx_spi_process_message(struct ep93xx_spi *espi,
 {
 	unsigned long timeout;
 	struct spi_transfer *t;
+	bool keep_cs = false;
 	int err;
 
 	/*
@@ -630,8 +631,10 @@ static void ep93xx_spi_process_message(struct ep93xx_spi *espi,
 			break;
 
 		if (t->cs_change) {
-			if (!list_is_last(&t->transfer_list,
-					  &msg->transfers)) {
+			if (list_is_last(&t->transfer_list,
+					 &msg->transfers)) {
+				keep_cs = true;
+			} else {
 				/*
 				 * In case protocol driver is asking us to
 				 * drop the chipselect briefly, we let the
@@ -648,7 +651,9 @@ static void ep93xx_spi_process_message(struct ep93xx_spi *espi,
 	 * Now the whole message is transferred (or failed for some reason). We
 	 * deselect the device and disable the SPI controller.
 	 */
-	ep93xx_spi_cs_control(msg->spi, false);
+	if (msg->status || !keep_cs)
+		ep93xx_spi_cs_control(msg->spi, false);
+
 	ep93xx_spi_disable(espi);
 }
 
