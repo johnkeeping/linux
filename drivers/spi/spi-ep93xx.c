@@ -568,18 +568,6 @@ static void ep93xx_spi_process_transfer(struct ep93xx_spi *espi,
 		set_current_state(TASK_UNINTERRUPTIBLE);
 		schedule_timeout(usecs_to_jiffies(t->delay_usecs));
 	}
-	if (t->cs_change) {
-		if (!list_is_last(&t->transfer_list, &msg->transfers)) {
-			/*
-			 * In case protocol driver is asking us to drop the
-			 * chipselect briefly, we let the scheduler to handle
-			 * any "delay" here.
-			 */
-			ep93xx_spi_cs_control(msg->spi, false);
-			cond_resched();
-			ep93xx_spi_cs_control(msg->spi, true);
-		}
-	}
 }
 
 /*
@@ -640,6 +628,20 @@ static void ep93xx_spi_process_message(struct ep93xx_spi *espi,
 		ep93xx_spi_process_transfer(espi, msg, t);
 		if (msg->status)
 			break;
+
+		if (t->cs_change) {
+			if (!list_is_last(&t->transfer_list,
+					  &msg->transfers)) {
+				/*
+				 * In case protocol driver is asking us to
+				 * drop the chipselect briefly, we let the
+				 * scheduler to handle any "delay" here.
+				 */
+				ep93xx_spi_cs_control(msg->spi, false);
+				cond_resched();
+				ep93xx_spi_cs_control(msg->spi, true);
+			}
+		}
 	}
 
 	/*
